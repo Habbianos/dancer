@@ -45,6 +45,8 @@ async function main() {
   const map = await download(mapUrl);
   const data = await download(dataUrl);
   xml(new TextDecoder().decode(data), 'figuredata');
+  await writeFile(join(assetRoot, 'figuremap.xml'), map);
+  await writeFile(join(assetRoot, 'figuredata.xml'), data);
   const ids = libraryIds(new TextDecoder().decode(map));
   const files: Record<string, string> = { 'figuremap.xml': hash(map), 'figuredata.xml': hash(data) };
   console.log(`Preparando ${ids.length} bibliotecas de avatar (sem furnis).`);

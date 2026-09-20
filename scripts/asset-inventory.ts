@@ -15,7 +15,7 @@ export function xml(text: string, root: string): Document {
 export function libraryIds(map: string): string[] {
   const ids = [...xml(map, 'map').querySelectorAll('lib')].map(el => el.getAttribute('id') ?? '');
   if (!ids.length || ids.some(id => !/^[a-zA-Z0-9_-]+$/.test(id))) throw new Error('Figuremap inválido.');
-  return [...new Set(ids)];
+  return [...new Set(['hh_human_face', 'hh_human_item', 'hh_human_body', ...ids])];
 }
 export function validateBundle(data: Uint8Array) {
   const files = readBundle(data);
@@ -25,6 +25,11 @@ export function validateBundle(data: Uint8Array) {
   for (const asset of doc.querySelectorAll('assets > asset')) {
     const name = asset.getAttribute('name');
     if (name?.endsWith('__REGPOINTS')) continue;
+    if (asset.getAttribute('mimeType') === 'text/xml') {
+      const content = files.get(`${name}.bin`);
+      if (!content?.length || parser.parseFromString(new TextDecoder().decode(content), 'text/xml').querySelector('parsererror')) throw new Error(`XML interno ausente ou inválido: ${name}`);
+      continue;
+    }
     const image = files.get(`${name}.png`);
     if (!image || image.length < 24 || image[0] !== 137 || image[1] !== 80) throw new Error(`Imagem ausente ou inválida: ${name}`);
   }

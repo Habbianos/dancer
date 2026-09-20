@@ -1,0 +1,36 @@
+---
+import '../styles/editor.css';
+---
+<!doctype html>
+<html lang="pt-BR">
+  <head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width"/><meta name="description" content="Editor de danças Habbo com prévia em tempo real."/><title>Dancer</title></head>
+  <body>
+    <main>
+      <nav class="toolbar" aria-label="Arquivo">
+        <select id="preset" aria-label="Dança"><option value="1">Dança 1</option><option value="2">Dança 2</option><option value="3">Dança 3</option><option value="4">Dança 4</option><option value="custom" hidden>Personalizada</option></select>
+        <span class="divider"></span><button id="new">Nova</button><button id="import">Importar</button>
+        <input id="file" type="file" accept=".xml,.shroom,.wsproom" hidden/>
+        <span class="spacer"></span><span id="saved" class="muted" aria-live="polite"></span>
+        <select id="format" aria-label="Formato de exportação"><option value="shroom">.shroom</option><option value="xml">.xml</option></select><button id="export" class="primary">Exportar <span aria-hidden="true">↗</span></button>
+      </nav>
+      <div class="workspace">
+        <section class="editor" aria-label="Editor de frames">
+          <div class="document-fields"><input id="dance-name" aria-label="Nome da animação" placeholder="dance.custom"/><input id="dance-desc" aria-label="Descrição da animação" placeholder="Descrição"/></div>
+          <div class="frame-tools"><span id="frame-label" class="eyebrow">Frame 01</span><span class="spacer"></span><button id="previous-order" title="Mover frame para trás" aria-label="Mover frame para trás">←</button><button id="next-order" title="Mover frame para frente" aria-label="Mover frame para frente">→</button><button id="duplicate" title="Duplicar frame">Duplicar</button><button id="add" title="Adicionar frame" aria-label="Adicionar frame">+</button><button id="delete" title="Excluir frame" aria-label="Excluir frame">−</button></div>
+          <div id="frames" class="frames" aria-label="Frames"></div>
+          <div class="table-wrap"><table><thead><tr><th>Parte</th><th>Ação</th><th>Frame</th><th>dx</th><th>dy</th><th>dd</th><th></th></tr></thead><tbody id="parts"></tbody></table></div>
+          <div class="part-tools"><select id="part-id" aria-label="Parte a adicionar"><option value="head">Cabeça</option><option value="torso">Tronco</option><option value="leftarm">Braço E</option><option value="rightarm">Braço D</option><option value="leftleg">Perna E</option><option value="rightleg">Perna D</option></select><button id="add-part">Adicionar parte</button></div>
+          <div class="editor-footer"><span id="frame-count" class="muted"></span><span class="muted">dx / dy · posição &nbsp; dd · direção</span></div>
+        </section>
+        <section class="preview" aria-label="Prévia da dança">
+          <form id="appearance" class="appearance"><select id="appearance-mode" aria-label="Buscar aparência por"><option value="figure">Figurestring</option><option value="user">Usuário</option></select><select id="hotel" aria-label="Hotel" hidden><option value="com.br">BR</option><option value="com">COM</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="it">IT</option><option value="nl">NL</option><option value="fi">FI</option><option value="com.tr">TR</option></select><input id="appearance-value" aria-label="Figurestring ou nome do usuário" spellcheck="false" placeholder="hd-180-1.ch-210-66.lg-270-82.sh-290-80"/><button type="submit" aria-label="Aplicar aparência" title="Aplicar aparência">↵</button></form>
+          <div id="stage" class="stage"><span id="loading" class="loading">Carregando avatar…</span></div>
+          <div class="rotation"><button id="rotate-left" aria-label="Girar para esquerda">↶</button><span id="direction" class="muted">2 / 7</span><button id="rotate-right" aria-label="Girar para direita">↷</button></div>
+          <div class="transport"><button id="play" class="play primary" aria-label="Reproduzir">▶</button><input id="timeline" type="range" min="0" max="7" value="0" aria-label="Frame ativo"/><output id="timecode">01 / 08</output><select id="fps" aria-label="Velocidade"><option value="12">12 fps</option><option value="24" selected>24 fps</option><option value="30">30 fps</option><option value="48">48 fps</option></select></div>
+        </section>
+      </div>
+      <p id="status" role="status" aria-live="polite"></p>
+    </main>
+    <script>import '../editor/controller';</script>
+  </body>
+</html>

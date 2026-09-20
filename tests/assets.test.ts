@@ -19,6 +19,16 @@ it('aceita marcadores REGPOINTS sem imagem, mas exige sprites renderizáveis', (
   files.set('h_std_hd_1_0_0.png', png);
   expect(() => validateBundle(writeBundle(files))).not.toThrow();
 });
+it('valida paletas XML como arquivos binários de texto, não como PNG', () => {
+  const encode = (value: string) => new TextEncoder().encode(value);
+  const files = new Map([
+    ['manifest.bin', encode('<manifest><library><assets><asset name="palette" mimeType="text/xml"/></assets></library></manifest>')],
+    ['palette.bin', encode('<palette/>')],
+  ]);
+  expect(() => validateBundle(writeBundle(files))).not.toThrow();
+  files.delete('palette.bin');
+  expect(() => validateBundle(writeBundle(files))).toThrow();
+});
 it('rejeita assets ausentes, pasta vazia e inventário incompleto', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'dancer-assets-'));
   try {

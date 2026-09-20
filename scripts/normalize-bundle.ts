@@ -12,7 +12,8 @@ export function normalizeBundle(bytes: Uint8Array, sourceSymbols: Set<string>): 
   const removed = new Set<string>();
   for (const asset of doc.querySelectorAll('assets > asset')) {
     const name = asset.getAttribute('name') ?? '';
-    if (!files.has(`${name}.png`) && !sourceSymbols.has(name)) { removed.add(name); asset.remove(); }
+    const extension = asset.getAttribute('mimeType') === 'text/xml' ? 'bin' : 'png';
+    if (!files.has(`${name}.${extension}`) && !sourceSymbols.has(name)) { removed.add(name); asset.remove(); }
   }
   for (const alias of doc.querySelectorAll('aliases > alias')) {
     if (removed.has(alias.getAttribute('link') ?? '')) alias.remove();
