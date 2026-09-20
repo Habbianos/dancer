@@ -1,0 +1,30 @@
+{
+  "name": "habbo-dancer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.0.0" },
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "assets:prepare": "tsx scripts/prepare-assets.ts",
+    "assets:check": "tsx scripts/check-assets.ts"
+  },
+  "dependencies": {
+    "@wiredsnippets/shroom": "1.1.0",
+    "astro": "5.13.10",
+    "pixi.js": "8.6.6",
+    "buffer": "6.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.30",
+    "@types/jsdom": "21.1.7",
+    "jsdom": "26.1.0",
+    "tsx": "4.20.5",
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
+  }
+}
