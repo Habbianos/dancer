@@ -1,0 +1,69 @@
+name: GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache/shroom
+            public/assets/shroom
+          key: shroom-${{ runner.os }}-${{ hashFiles('scripts/*.ts', 'package-lock.json') }}
+      - run: npm run assets:prepare
+      - run: npm test && npm run typecheck
+      - name: Configure Pages paths
+        shell: bash
+        run: |
+          owner="${GITHUB_REPOSITORY%%/*}"
+          repo="${GITHUB_REPOSITORY#*/}"
+          echo "SITE_URL=https://${owner}.github.io" >> "$GITHUB_ENV"
+          if [[ "${repo,,}" == "${owner,,}.github.io" ]]; then
+            echo "BASE_PATH=/" >> "$GITHUB_ENV"
+          else
+            echo "BASE_PATH=/${repo}/" >> "$GITHUB_ENV"
+          fi
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Test static site
+        shell: bash
+        run: |
+          npm run preview -- --port 4323 > /tmp/dancer-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid"' EXIT
+          export TEST_URL="http://127.0.0.1:4323${BASE_PATH}"
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "$TEST_URL" > /dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:e2e
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
