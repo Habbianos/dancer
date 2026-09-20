@@ -179,6 +179,8 @@ async function start() {
   input('appearance-value').value = figure; $('direction').textContent = `${direction} / 7`;
   const { createPreview } = await import('../preview/renderer');
   preview = await createPreview($('stage'), dance); actions = preview.actions; drawParts();
+  // The user may replace the document while WebGL initializes.
+  await preview.setDance(structuredClone(dance));
   await preview.setDirection(direction); await preview.setFigure(figure); preview.seek(clock.frame);
   $('loading').hidden = true;
 }

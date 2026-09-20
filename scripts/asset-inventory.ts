@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { JSDOM } from 'jsdom';
+import { PNG } from 'pngjs';
 import { readBundle } from '../src/dance/bundle';
 export const revision = 'eaf266f54d5c8a9eb06174f13a85174e2745e034';
 export const assetRoot = 'public/assets/shroom';
@@ -31,7 +32,9 @@ export function validateBundle(data: Uint8Array) {
       continue;
     }
     const image = files.get(`${name}.png`);
-    if (!image || image.length < 24 || image[0] !== 137 || image[1] !== 80) throw new Error(`Imagem ausente ou inválida: ${name}`);
+    if (!image) throw new Error(`Imagem ausente: ${name}`);
+    try { PNG.sync.read(Buffer.from(image), { checkCRC: true }); }
+    catch { throw new Error(`Imagem inválida: ${name}`); }
   }
 }
 export async function checkAssets(root = assetRoot) {

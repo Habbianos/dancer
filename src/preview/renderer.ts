@@ -36,6 +36,7 @@ export async function createPreview(host: HTMLElement, dance: DanceDocument) {
   let request = 0;
   let destroyed = false;
   let look = '';
+  let committedLook = '';
   let direction = 2;
   const layout = () => {
     const scale = host.clientWidth < 430 ? 1.5 : 2;
@@ -53,7 +54,7 @@ export async function createPreview(host: HTMLElement, dance: DanceDocument) {
     const position = room.getPosition(1, 1, 0);
     const next = new BaseAvatar({ look: options, position, zIndex: 1000, onLoad: () => {
       if (ticket !== request || destroyed) { next.destroy(); return; }
-      avatar?.destroy(); avatar = next;
+      avatar?.destroy(); avatar = next; committedLook = options.look;
       room.addChild(next);
       // Each XML effect frame is repeated twice by wsproom's AvatarBodyPartList.
       next.currentFrame = frame * 2;
@@ -66,9 +67,8 @@ export async function createPreview(host: HTMLElement, dance: DanceDocument) {
     async setDance(next: DanceDocument) { bridge.setDance(next); await render(); },
     async setFigure(next: string) {
       if (!/^[a-z]{2}-\d+(?:-\d+)*(?:\.[a-z]{2}-\d+(?:-\d+)*)*$/.test(next)) throw new Error('Figurestring inválida.');
-      const previous = look;
       look = next;
-      try { await render(); } catch (reason) { if (look === next) look = previous; throw reason; }
+      try { await render(); } catch (reason) { if (look === next) look = committedLook; throw reason; }
     },
     async setDirection(next: number) { direction = ((next % 8) + 8) % 8; await render(); },
     seek(next: number) { frame = next; if (avatar) avatar.currentFrame = next * 2; ticker.frame = next * 2; ticker.flush(); },

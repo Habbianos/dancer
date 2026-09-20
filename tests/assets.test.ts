@@ -6,6 +6,8 @@ import { join } from 'node:path';
 import { checkAssets, validateBundle } from '../scripts/asset-inventory';
 import { writeBundle } from '../src/dance/bundle';
 import { normalizeBundle } from '../scripts/normalize-bundle';
+import { PNG } from 'pngjs';
+const realPng = () => Uint8Array.from(PNG.sync.write(new PNG({ width: 1, height: 1 })));
 it('remove referências órfãs do manifest apenas se não existem no SWF original', () => {
   const bytes = writeBundle(new Map([['manifest.bin', new TextEncoder().encode('<manifest><library><assets><asset name="old"/></assets></library></manifest>')]]));
   expect(() => validateBundle(normalizeBundle(bytes, new Set()))).not.toThrow();
@@ -15,9 +17,20 @@ it('aceita marcadores REGPOINTS sem imagem, mas exige sprites renderizáveis', (
   const encode = (value: string) => new TextEncoder().encode(value);
   const files = new Map([['manifest.bin', encode('<manifest><library><assets><asset name="h_std__2074__REGPOINTS"/><asset name="h_std_hd_1_0_0"/></assets></library></manifest>')]]);
   expect(() => validateBundle(writeBundle(files))).toThrow();
-  const png = new Uint8Array(24); png[0] = 137; png[1] = 80;
-  files.set('h_std_hd_1_0_0.png', png);
+  files.set('h_std_hd_1_0_0.png', realPng());
   expect(() => validateBundle(writeBundle(files))).not.toThrow();
+});
+it('rejeita PNG truncado ou conteúdo comprimido corrompido', () => {
+  const image = realPng();
+  const corrupted = image.slice(); corrupted[corrupted.length - 17] ^= 255;
+  const fake = new Uint8Array(24); fake[0] = 137; fake[1] = 80;
+  for (const png of [image.subarray(0, 24), corrupted, fake]) {
+    const files = new Map([
+      ['manifest.bin', new TextEncoder().encode('<manifest><library><assets><asset name="body"/></assets></library></manifest>')],
+      ['body.png', png],
+    ]);
+    expect(() => validateBundle(writeBundle(files))).toThrow();
+  }
 });
 it('valida paletas XML como arquivos binários de texto, não como PNG', () => {
   const encode = (value: string) => new TextEncoder().encode(value);
