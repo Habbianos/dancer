@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.cache/
+.superpowers/
+public/assets/shroom/
+public/dances/
+playwright-report/
+test-results/
+.env
+*.log
