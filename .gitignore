@@ -4,6 +4,7 @@ dist/
 .cache/
 .superpowers/
 public/assets/shroom/
+public/dances/
 playwright-report/
 test-results/
 .env
