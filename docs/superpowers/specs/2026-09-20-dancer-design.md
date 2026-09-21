@@ -57,4 +57,4 @@ Entregar repositório Git local, commits progressivos, código, lockfile, workfl
 
 ## Estado
 
-Revisada com as instruções do usuário sobre AstroJS, GitHub Pages, assets obrigatórios não versionados, API pública e commits progressivos. Código do produto ainda não implementado.
+Implementada em AstroJS com editor e renderização no navegador, assets obrigatórios não versionados e workflow GitHub Pages. Revisão independente e testes de regressão concluídos. Publicação remota depende da indicação do repositório GitHub; nenhum remoto está configurado nesta entrega local.
