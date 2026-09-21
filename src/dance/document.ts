@@ -6,6 +6,11 @@ export interface BodyPart {
 export interface DanceFrame { parts: BodyPart[]; extra: Attributes }
 export interface DanceDocument { name: string; description: string; extra: Attributes; frames: DanceFrame[] }
 export const bodyParts = ['head', 'torso', 'leftarm', 'rightarm'] as const;
+export function fixedParts(dance: DanceDocument): DanceDocument {
+  return { ...dance, frames: dance.frames.map(frame => ({ ...frame, parts: bodyParts.map(id =>
+    frame.parts.find(part => part.id === id) ?? { id, action: 'Default', frame: 0, dx: 0, dy: 0, dd: 0, extra: {} }
+  ) })) };
+}
 export function newDance(): DanceDocument {
   return { name: 'dance.custom', description: 'Minha dança', extra: {}, frames: [{ extra: {}, parts: bodyParts.map(id => ({ id, action: 'Default', frame: 0, dx: 0, dy: 0, dd: 0, extra: {} })) }] };
 }

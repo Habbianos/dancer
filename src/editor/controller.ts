@@ -1,6 +1,6 @@
 import { icon } from './icons';
 import { parseDance, toShroom, toXml } from '../dance/codec';
-import { newDance, duplicateFrame, removeFrame, moveFrame, type DanceDocument, type BodyPart } from '../dance/document';
+import { newDance, fixedParts, duplicateFrame, removeFrame, moveFrame, type DanceDocument } from '../dance/document';
 import { Playback } from '../preview/ticker';
 import { lookupFigure } from '../avatar/lookup';
 import { Buffer } from 'buffer';
@@ -10,7 +10,7 @@ Object.assign(globalThis, { Buffer });
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const input = (id: string) => $<HTMLInputElement>(id);
 const select = (id: string) => $<HTMLSelectElement>(id);
-const names: Record<string, string> = { head: 'Cabeça', torso: 'Tronco', leftarm: 'Braço E', rightarm: 'Braço D', leftleg: 'Perna E', rightleg: 'Perna D' };
+const names: Record<string, string> = { head: 'Cabeça', torso: 'Tronco', leftarm: 'Braço E', rightarm: 'Braço D' };
 const clock = new Playback();
 const storageKey = 'habbo-dancer:v1';
 let dance = newDance();
@@ -62,7 +62,7 @@ function frameButtons() {
   $('frame-count').textContent = `${clock.length} frame${clock.length > 1 ? 's' : ''}`;
 }
 function drawParts() {
-  const rows = dance.frames[clock.frame].parts.map((part, index) => {
+  const rows = dance.frames[clock.frame].parts.map(part => {
     const row = document.createElement('tr');
     const label = document.createElement('td'); label.textContent = names[part.id] ?? part.id; row.append(label);
     const actionCell = document.createElement('td');
@@ -83,9 +83,7 @@ function drawParts() {
       field.onblur = () => { field.value = String(part[key]); };
       cell.append(field); row.append(cell);
     }
-    const cell = document.createElement('td'); const remove = document.createElement('button'); remove.innerHTML = icon('close'); remove.title = `Remover ${label.textContent}`; remove.setAttribute('aria-label', remove.title); remove.disabled = dance.frames[clock.frame].parts.length <= 1;
-    remove.onclick = () => { pause(); dance.frames[clock.frame].parts.splice(index, 1); drawParts(); changed(); };
-    cell.append(remove); row.append(cell); return row;
+    return row;
   });
   $('parts').replaceChildren(...rows);
 }
@@ -101,7 +99,7 @@ clock.onFrame = frame => {
   drawParts();
 };
 function replace(next: DanceDocument, frame = 0) {
-  pause(); dance = next;
+  pause(); dance = fixedParts(next);
   input('dance-name').value = dance.name; input('dance-desc').value = dance.description;
   frameButtons(); clock.seek(frame); updatePreview(); persist();
 }
@@ -134,11 +132,6 @@ $('duplicate').onclick = () => { if (dance.frames.length >= 2048) return; replac
 $('add').onclick = () => { if (dance.frames.length >= 2048) return; dance.frames.splice(clock.frame + 1, 0, newDance().frames[0]); replace(dance, clock.frame + 1); changed(); };
 $('delete').onclick = () => { const index = clock.frame; replace(removeFrame(dance, index), Math.min(index, dance.frames.length - 2)); changed(); };
 for (const [id, delta] of [['previous-order', -1], ['next-order', 1]] as const) $(id).onclick = () => { const next = clock.frame + delta; replace(moveFrame(dance, clock.frame, next), next); changed(); };
-$('add-part').onclick = () => {
-  pause(); const id = select('part-id').value; const parts = dance.frames[clock.frame].parts;
-  if (parts.some(part => part.id === id)) { status('Esta parte já está no frame.'); return; }
-  parts.push({ id, action: 'Default', frame: 0, dx: 0, dy: 0, dd: 0, extra: {} }); drawParts(); changed(); status();
-};
 $('play').onclick = () => { clock.playing = !clock.playing; syncPlay(); };
 input('timeline').oninput = () => { pause(); clock.seek(Number(input('timeline').value)); };
 select('fps').onchange = () => { clock.fps = Number(select('fps').value); };

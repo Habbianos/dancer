@@ -36,6 +36,28 @@ it('sincroniza o documento substituído enquanto a criação da prévia está pe
   expect(setDance.mock.calls.at(-1)![0].name).toBe('dance.custom');
 });
 
+it('mantém quatro partes fixas e preenche partes ausentes com zero ao restaurar', async () => {
+  const dance = newDance();
+  dance.frames[0].parts = [
+    { ...dance.frames[0].parts[0], dx: 7 },
+    { ...dance.frames[0].parts[1], id: 'leftleg', dx: 9 },
+    { ...dance.frames[0].parts[2], id: 'rightleg', dx: 9 },
+  ];
+  localStorage.setItem('habbo-dancer:v1', JSON.stringify({ xml: toXml(dance) }));
+  state.factory.mockImplementation(() => new Promise(() => {}));
+  await import('../src/editor/controller');
+  await vi.waitFor(() => expect(state.factory).toHaveBeenCalledOnce());
+  expect(document.querySelectorAll('#parts tr')).toHaveLength(4);
+  expect(document.querySelector('#parts button, #add-part, #part-id')).toBeNull();
+  window.dispatchEvent(new Event('pagehide'));
+  const saved = parseDance(JSON.parse(localStorage.getItem('habbo-dancer:v1')!).xml);
+  expect(saved.frames[0].parts.map(part => part.id)).toEqual(['head', 'torso', 'leftarm', 'rightarm']);
+  expect(saved.frames[0].parts[0].dx).toBe(7);
+  for (const part of saved.frames[0].parts.slice(1)) {
+    expect(part).toMatchObject({ action: 'Default', frame: 0, dx: 0, dy: 0, dd: 0 });
+  }
+});
+
 it('salva a edição pendente ao sair antes dos 250 ms do autosave', async () => {
   state.factory.mockImplementation(() => new Promise(() => {}));
   await import('../src/editor/controller');
