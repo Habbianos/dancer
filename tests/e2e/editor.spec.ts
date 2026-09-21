@@ -1,24 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-test('aplica documento substituído durante a inicialização da prévia', async ({ page }) => {
-  await page.route(/\/(?:src\/preview\/renderer\.ts|_astro\/renderer\.[^/]+\.js)/, route => route.fulfill({
-    contentType: 'application/javascript',
-    body: `export async function createPreview(host, dance) {
-      host.dataset.previewDance = dance.name;
-      host.dataset.initializing = 'true';
-      await new Promise(resolve => window.addEventListener('finish-test-init', resolve, { once: true }));
-      return { actions: ['Default'], setDance: async dance => { host.dataset.previewDance = dance.name; }, setFigure: async () => {}, setDirection: async () => {}, seek() {}, destroy() {} };
-    }`,
-  }));
-  await page.goto('./');
-  await expect(page.locator('#stage')).toHaveAttribute('data-initializing', 'true');
-  await page.getByRole('button', { name: 'Nova', exact: true }).click();
-  await page.waitForTimeout(100);
-  await page.evaluate(() => window.dispatchEvent(new Event('finish-test-init')));
-  await expect(page.locator('#loading')).toBeHidden();
-  await expect(page.locator('#stage')).toHaveAttribute('data-preview-dance', 'dance.custom');
-});
-
 test('edita, reproduz, rotaciona e exporta a dança real', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));

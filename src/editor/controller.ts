@@ -24,14 +24,16 @@ let saveTimer: ReturnType<typeof setTimeout>;
 let renderTimer: ReturnType<typeof setTimeout>;
 function status(message = '') { $('status').textContent = message; }
 function error(reason: unknown) { status(reason instanceof Error ? reason.message : 'Não foi possível concluir a operação.'); }
+function saveDraft() {
+  clearTimeout(saveTimer);
+  try {
+    localStorage.setItem(storageKey, JSON.stringify({ xml: toXml(dance), figure, direction }));
+    $('saved').textContent = 'Salvo neste navegador';
+  } catch { $('saved').textContent = 'Exporte para salvar'; }
+}
 function persist() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify({ xml: toXml(dance), figure, direction }));
-      $('saved').textContent = 'Salvo neste navegador';
-    } catch { $('saved').textContent = 'Exporte para salvar'; }
-  }, 250);
+  saveTimer = setTimeout(saveDraft, 250);
 }
 function pause() { clock.playing = false; syncPlay(); }
 function syncPlay() { $('play').textContent = clock.playing ? 'Ⅱ' : '▶'; $('play').setAttribute('aria-label', clock.playing ? 'Pausar' : 'Reproduzir'); }
@@ -168,7 +170,7 @@ requestAnimationFrame(tick);
 window.addEventListener('keydown', event => {
   if (event.code === 'Space' && (event.target === document.body || event.target === $('stage'))) { event.preventDefault(); $('play').click(); }
 });
-window.addEventListener('pagehide', () => { lookup?.abort(); preview?.destroy(); });
+window.addEventListener('pagehide', () => { saveDraft(); lookup?.abort(); preview?.destroy(); });
 async function start() {
   let restored = false;
   try {
