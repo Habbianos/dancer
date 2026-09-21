@@ -41,7 +41,7 @@ Buscar usuários diretamente do navegador em `https://www.habbo.[hotel]/api/publ
 
 Configurar `site` e `base` para páginas de projeto e permitir personalização por ambiente. Workflow com checkout, instalação reproduzível, cache de assets associado à revisão do motor/configuração, download/conversão, testes, checagem obrigatória, build, upload do artefato e deploy no environment github-pages. Os assets fazem parte do artefato publicado, nunca dos commits. Não usar branch de distribuição para versionar os arquivos gerados.
 
-Realizar commits progressivos por etapa funcional. Preparar workflow e instruções de ativação do Pages; a execução do deploy depende de um remoto GitHub acessível e configurado, que ainda não existe neste repositório local.
+Realizar commits progressivos por etapa funcional. Preparar workflow e instruções de ativação do Pages; o remoto foi configurado pelo usuário como `Habbianos/dancer`.
 
 ## Alternativas consideradas
 
@@ -57,4 +57,4 @@ Entregar repositório Git local, commits progressivos, código, lockfile, workfl
 
 ## Estado
 
-Implementada em AstroJS com editor e renderização no navegador, assets obrigatórios não versionados e workflow GitHub Pages. Revisão independente e testes de regressão concluídos. Publicação remota depende da indicação do repositório GitHub; nenhum remoto está configurado nesta entrega local.
+Implementada em AstroJS com editor e renderização no navegador, assets obrigatórios não versionados e workflow GitHub Pages. Revisão independente e testes de regressão concluídos. Alterações integradas pelo usuário em `Habbianos/dancer`. Correção da primeira execução do GitHub Actions validada localmente; publicação remota ainda pendente de verificação.
