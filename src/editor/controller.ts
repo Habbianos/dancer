@@ -1,3 +1,4 @@
+import { icon } from './icons';
 import { parseDance, toShroom, toXml } from '../dance/codec';
 import { newDance, duplicateFrame, removeFrame, moveFrame, type DanceDocument, type BodyPart } from '../dance/document';
 import { Playback } from '../preview/ticker';
@@ -36,7 +37,7 @@ function persist() {
   saveTimer = setTimeout(saveDraft, 250);
 }
 function pause() { clock.playing = false; syncPlay(); }
-function syncPlay() { $('play').textContent = clock.playing ? 'Ⅱ' : '▶'; $('play').setAttribute('aria-label', clock.playing ? 'Pausar' : 'Reproduzir'); }
+function syncPlay() { $('play').innerHTML = icon(clock.playing ? 'pause' : 'play'); $('play').setAttribute('aria-label', clock.playing ? 'Pausar' : 'Reproduzir'); }
 function updatePreview() {
   clearTimeout(renderTimer);
   renderTimer = setTimeout(() => preview?.setDance(structuredClone(dance)).then(() => preview?.seek(clock.frame)).catch(error), 60);
@@ -82,7 +83,7 @@ function drawParts() {
       field.onblur = () => { field.value = String(part[key]); };
       cell.append(field); row.append(cell);
     }
-    const cell = document.createElement('td'); const remove = document.createElement('button'); remove.textContent = '×'; remove.title = `Remover ${label.textContent}`; remove.setAttribute('aria-label', remove.title); remove.disabled = dance.frames[clock.frame].parts.length <= 1;
+    const cell = document.createElement('td'); const remove = document.createElement('button'); remove.innerHTML = icon('close'); remove.title = `Remover ${label.textContent}`; remove.setAttribute('aria-label', remove.title); remove.disabled = dance.frames[clock.frame].parts.length <= 1;
     remove.onclick = () => { pause(); dance.frames[clock.frame].parts.splice(index, 1); drawParts(); changed(); };
     cell.append(remove); row.append(cell); return row;
   });

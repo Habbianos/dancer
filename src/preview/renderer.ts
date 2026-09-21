@@ -39,7 +39,7 @@ export async function createPreview(host: HTMLElement, dance: DanceDocument) {
   let committedLook = '';
   let direction = 2;
   const layout = () => {
-    const scale = host.clientWidth < 430 ? 1.5 : 2;
+    const scale = 2;
     room.scale.set(scale);
     room.position.set(host.clientWidth / 2 - 32 * scale, host.clientHeight / 2 - 15 * scale);
   };
