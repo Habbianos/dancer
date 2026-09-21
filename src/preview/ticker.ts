@@ -2,7 +2,7 @@ export class Playback {
   frame = 0;
   length = 1;
   playing = false;
-  fps = 24;
+  fps = 12;
   private elapsed = 0;
   onFrame: (frame: number) => void = () => {};
   seek(frame: number) {

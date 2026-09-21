@@ -9,10 +9,10 @@ it('pausa, seleciona e repete usando tempo decorrido', () => {
   expect(clock.frame).toBe(5);
   clock.playing = true;
   clock.advance(250);
-  expect(clock.frame).toBe(3);
+  expect(clock.frame).toBe(0);
   clock.playing = false;
   clock.advance(1000);
-  expect(clock.frame).toBe(3);
+  expect(clock.frame).toBe(0);
   clock.seek(100);
   expect(clock.frame).toBe(7);
 });
